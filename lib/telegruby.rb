@@ -64,19 +64,29 @@ module Telegruby
         f.binmode
         f.write(str)
        
-        options = {
-          :chat_id => id,
-          :photo => File.new(f.path)
-        }
-
-        if !reply.nil?
-          options.merge!(:reply_to_message_id => reply)
-        end
-
-        self.post_request("sendPhoto", options)
+        self.send_photo(id, f.path, reply)
       }
     end
 
+    # Sends a document by filename or file ID
+    def send_document(id, str, reply = nil, is_id = false)
+      options = {
+        :chat_id => id
+      }
+      
+      if is_id
+        options.merge!(:document => str)
+      else
+        options.merge!(:document => File.new(str))
+      end
+
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendDocument", options)
+    end
+    
     protected
 
     # Provides a generic method for GET requests.
