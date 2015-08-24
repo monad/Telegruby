@@ -19,8 +19,11 @@ module Telegruby
         }
       end
 
-      raw_data = self.get_request("getUpdates", options)
-      update = Update.new(JSON.parse(raw_data, object_class: OpenStruct))
+      request = self.get_request("getUpdates", options)
+      if request.code != 200
+        return
+      end
+      update = Update.new(JSON.parse(request.body, object_class: OpenStruct))
       
       if !update.result.empty?
         # there are updates, so mark them as 'seen'
@@ -91,7 +94,7 @@ module Telegruby
 
     # Provides a generic method for GET requests.
     def get_request(name, options = {})
-      HTTMultiParty::get(@endpoint + name, query: options).body
+      HTTMultiParty::get(@endpoint + name, query: options)
     end
 
     # Provides a generic method for POST requests.
