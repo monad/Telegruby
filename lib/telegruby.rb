@@ -11,7 +11,8 @@ module Telegruby
       @id = 0
     end
 
-    # get updates using the offset id
+    # See https://core.telegram.org/bots/api for the full method list
+
     def get_updates(options = {})
       if options == {}
         options = {
@@ -46,14 +47,29 @@ module Telegruby
       
       self.get_request("sendMessage", options)
     end
-    
+
+    def forward_message(id, from_id, message_id)
+      options = {
+        :chat_id => id,
+        :from_chat_id => from_id,
+        :message_id => message_id
+      }
+
+      self.get_request("forwardMessage", options)
+    end
+   
     # Sends a photo message to a chat id
-    def send_photo(id, filename, reply = nil)
+    def send_photo(id, filename, reply = nil, is_id = false)
       options = {
         :chat_id => id,
         :photo => File.new(filename)
       }
-      
+      if is_id
+        options.merge!(:photo => str)
+      else
+        options.merge!(:photo => File.new(str))
+      end
+     
       if !reply.nil?
         options.merge!(:reply_to_message_id => reply)
       end
@@ -69,6 +85,100 @@ module Telegruby
        
         self.send_photo(id, f.path, reply)
       }
+    end
+
+    def send_voice(id, filename, reply = nil, is_id = false)
+      options = {
+        :chat_id => id,
+        :audio => File.new(filename)
+      }
+      if is_id
+        options.merge!(:audio => str)
+      else
+        options.merge!(:audio => File.new(str))
+      end
+     
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendVoice", options)
+    end
+
+    def send_sticker(id, filename, reply = nil, is_id = false)
+      options = {
+        :chat_id => id,
+        :sticker => File.new(filename)
+      }
+      if is_id
+        options.merge!(:sticker => str)
+      else
+        options.merge!(:sticker => File.new(str))
+      end
+
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendSticker", options)
+    end
+
+    def send_audio(id, filename, reply = nil, is_id = false)
+      options = {
+        :chat_id => id,
+        :audio => File.new(filename)
+      } 
+      if is_id
+        options.merge!(:audio => str)
+      else
+        options.merge!(:audio => File.new(str))
+      end
+
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendAudio", options)
+    end
+
+    def send_video(id, filename, reply = nil, is_id = false)
+      options = {
+        :chat_id => id,
+        :video => File.new(filename)
+      }
+      if is_id
+        options.merge!(:video => str)
+      else
+        options.merge!(:video => File.new(str))
+      end
+
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendVideo", options)
+    end
+
+    def send_location(id, lat, long, reply = nil)
+      options = {
+        :chat_id => id,
+        :latitude => lat,
+        :longitude => long
+      }
+      
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+
+      self.post_request("sendLocation", options)
+    end
+    def send_action(id, action)
+      options = {
+        :chat_id => id,
+        :action => action
+      }
+      
+      return self.post_request("sendChatAction", options)
     end
 
     # Sends a document by filename or file ID
@@ -87,9 +197,29 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
-      self.post_request("sendDocument", options)
+      return self.post_request("sendDocument", options)
+    end
+    def get_userphoto(id, offset = nil, limit = nil)
+      options = {
+        :user_id => id,
+        :offset => offset,
+        :limit => limit
+      }
+      
+      return self.get_request("getUserProfilePhotos", options)
     end
     
+    def set_webhook(url = nil, certificate = nil)
+      options = {
+        :url => nil,
+      }
+      if certificate
+        options.merge!(:certificate => File.new(certificate))
+      end
+      
+      return self.get_request("setWebhook", options)
+    end
+
     protected
 
     # Provides a generic method for GET requests.

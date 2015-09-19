@@ -1,5 +1,6 @@
 # Telegruby
 Telegram bot library in Ruby.
+Read https://core.telegram.org/bots/api.
 
 ## Usage
-See https://github.com/telegram-wired/lainbot for a working example.
+See in the examples/ folder for a minimal bot using the full API; also see https://github.com/telegram-wired/lainbot.
