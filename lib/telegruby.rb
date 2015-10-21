@@ -13,7 +13,7 @@ module Telegruby
 
     # See https://core.telegram.org/bots/api for the full method list
 
-    def get_updates(options = {})
+    def get_updates(options = {}, error_callback = nil)
       if options == {}
         options = {
           :offset => @id
@@ -22,7 +22,7 @@ module Telegruby
 
       request = self.get_request("getUpdates", options)
       if request.code != 200
-        return
+        return error_callback request
       end
       update = Update.new(JSON.parse(request.body, object_class: OpenStruct))
       
@@ -35,7 +35,7 @@ module Telegruby
     end
 
     # Send a plaintext message to a chat id
-    def send_message(id, text, reply = nil)
+    def send_message(id, text, reply: nil)
       options = {
         :chat_id => id,
         :text => text
@@ -59,15 +59,14 @@ module Telegruby
     end
    
     # Sends a photo message to a chat id
-    def send_photo(id, filename, reply = nil, is_id = false)
+    def send_photo(id, filename: nil, file_id: nil, reply: nil)
       options = {
         :chat_id => id,
-        :photo => File.new(filename)
       }
-      if is_id
-        options.merge!(:photo => str)
+      if file_id
+        options.merge!(:photo => file_id)
       else
-        options.merge!(:photo => File.new(str))
+        options.merge!(:photo => File.new(filename))
       end
      
       if !reply.nil?
@@ -78,7 +77,7 @@ module Telegruby
     end
 
     # Sends a photo from a byte string
-    def send_photo_bytestring(id, str, reply = nil)
+    def send_photo_bytestring(id, str, reply: nil)
       Tempfile.open(["img", ".jpg"]) { |f|
         f.binmode
         f.write(str)
@@ -87,15 +86,14 @@ module Telegruby
       }
     end
 
-    def send_voice(id, filename, reply = nil, is_id = false)
+    def send_voice(id, filename: nil, file_id: nil, reply: nil)
       options = {
         :chat_id => id,
-        :audio => File.new(filename)
       }
-      if is_id
-        options.merge!(:audio => str)
+      if file_id
+        options.merge!(:audio => file_id)
       else
-        options.merge!(:audio => File.new(str))
+        options.merge!(:audio => File.new(filename))
       end
      
       if !reply.nil?
@@ -105,15 +103,14 @@ module Telegruby
       self.post_request("sendVoice", options)
     end
 
-    def send_sticker(id, filename, reply = nil, is_id = false)
+    def send_sticker(id, file_id: nil, filename: nil, reply: nil)
       options = {
         :chat_id => id,
-        :sticker => File.new(filename)
       }
-      if is_id
-        options.merge!(:sticker => str)
+      if file_id
+        options.merge!(:sticker => file_id)
       else
-        options.merge!(:sticker => File.new(str))
+        options.merge!(:sticker => File.new(filename))
       end
 
       if !reply.nil?
@@ -123,15 +120,14 @@ module Telegruby
       self.post_request("sendSticker", options)
     end
 
-    def send_audio(id, filename, reply = nil, is_id = false)
+    def send_audio(id, filename: nil, file_id: nil, reply: nil)
       options = {
         :chat_id => id,
-        :audio => File.new(filename)
       } 
-      if is_id
-        options.merge!(:audio => str)
+      if file_id
+        options.merge!(:audio => file_id)
       else
-        options.merge!(:audio => File.new(str))
+        options.merge!(:audio => File.new(filename))
       end
 
       if !reply.nil?
@@ -141,15 +137,14 @@ module Telegruby
       self.post_request("sendAudio", options)
     end
 
-    def send_video(id, filename, reply = nil, is_id = false)
+    def send_video(id, filename: nil, file_id: nil, reply: nil)
       options = {
         :chat_id => id,
-        :video => File.new(filename)
       }
-      if is_id
-        options.merge!(:video => str)
+      if file_id
+        options.merge!(:video => file_id)
       else
-        options.merge!(:video => File.new(str))
+        options.merge!(:video => File.new(filename))
       end
 
       if !reply.nil?
@@ -159,7 +154,7 @@ module Telegruby
       self.post_request("sendVideo", options)
     end
 
-    def send_location(id, lat, long, reply = nil)
+    def send_location(id, lat, long, reply: nil)
       options = {
         :chat_id => id,
         :latitude => lat,
@@ -182,15 +177,15 @@ module Telegruby
     end
 
     # Sends a document by filename or file ID
-    def send_document(id, str, reply = nil, is_id = false)
+    def send_document(id, filename: nil, file_id: nil, reply: nil)
       options = {
         :chat_id => id
       }
       
-      if is_id
-        options.merge!(:document => str)
+      if file_id
+        options.merge!(:document => file_id)
       else
-        options.merge!(:document => File.new(str))
+        options.merge!(:document => File.new(filename))
       end
 
       if !reply.nil?
@@ -199,7 +194,7 @@ module Telegruby
 
       return self.post_request("sendDocument", options)
     end
-    def get_userphoto(id, offset = nil, limit = nil)
+    def get_userphoto(id, offset: nil, limit: nil)
       options = {
         :user_id => id,
         :offset => offset,
