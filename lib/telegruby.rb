@@ -167,6 +167,7 @@ module Telegruby
 
       self.post_request("sendLocation", options)
     end
+    
     def send_action(id, action)
       options = {
         :chat_id => id,
@@ -194,6 +195,7 @@ module Telegruby
 
       return self.post_request("sendDocument", options)
     end
+    
     def get_userphoto(id, offset: nil, limit: nil)
       options = {
         :user_id => id,
