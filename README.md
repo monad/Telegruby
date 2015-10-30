@@ -1,4 +1,7 @@
 # Telegruby
+
+[![Gem Version](https://badge.fury.io/rb/telegruby.svg)](https://badge.fury.io/rb/telegruby)
+
 Telegram bot library in Ruby.
 Read https://core.telegram.org/bots/api.
 
