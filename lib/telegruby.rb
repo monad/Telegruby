@@ -82,7 +82,7 @@ module Telegruby
         f.binmode
         f.write(str)
        
-        self.send_photo(id, f.path, reply)
+        self.send_photo(id, filename: f.path, reply: reply)
       }
     end
 
