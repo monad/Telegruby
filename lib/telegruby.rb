@@ -35,7 +35,7 @@ module Telegruby
     end
 
     # Send a plaintext message to a chat id
-    def send_message(id, text, reply: nil)
+    def send_message(id, text, reply: nil, parse_mode: nil)
       options = {
         :chat_id => id,
         :text => text
@@ -43,6 +43,10 @@ module Telegruby
 
       if !reply.nil?
         options.merge!(:reply_to_message_id => reply)
+      end
+
+      if !parse_mode.nil?
+        options.merge!(:parse_mode => parse_mode)
       end
       
       self.get_request("sendMessage", options)
