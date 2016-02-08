@@ -2,16 +2,10 @@
 # coding: utf-8
 require 'telegruby'
 
-# Load configuration
-config = Telegruby::read_config('config.json')
+# Please see https://github.com/webgiorno/lainbot for a full bot example.
 
-if !config
-  p "Failed to load an API token from the config..."
-  exit(1)
-end
-
-token = config['token']
-botname = config['name']
+token = "TOKEN"
+botname = "BOTNAME"
 bot = Telegruby::Bot.new(token)
 
 def handle(bot, msg, pattern, cb)
@@ -30,7 +24,6 @@ while true
   # Process each message
   msgs.map { |msg|
     if !msg.older_than? 120 and !msg.body.nil?
-      puts msg
       handle bot, msg, /^\/echo\s+(.*)$/i, lambda { |b,m,p|
         bot.send_message(msg.chat_id, p.last.to_s)
       }
@@ -63,7 +56,7 @@ while true
         bot.send_message(msg.chat_id, res)
       }
       handle bot, msg, /^\/version$/i, lambda { |b,m,p|
-        bot.send_message(msg.chat_id, "Telegruby · http://github.com/telegram-wired/telegruby")
+        bot.send_message(msg.chat_id, "Telegruby · http://github.com/webgiorno/telegruby")
       }
     end
   }

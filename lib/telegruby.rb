@@ -13,16 +13,19 @@ module Telegruby
 
     # See https://core.telegram.org/bots/api for the full method list
 
-    def get_updates(options = {}, error_callback = nil)
-      if options == {}
-        options = {
-          :offset => @id
-        }
-      end
+    def get_updates(on_error: nil)
+      options = {
+        :offset => @id
+      }
 
       request = self.get_request("getUpdates", options)
       if request.code != 200
-        return error_callback request
+        if on_error.nil?
+          puts "Failed to get updates: #{request}"
+          return nil
+        else
+          return on_error(request)
+        end
       end
       update = Update.new(JSON.parse(request.body, object_class: OpenStruct))
       
@@ -35,20 +38,25 @@ module Telegruby
     end
 
     # Send a plaintext message to a chat id
-    def send_message(id, text, reply: nil, parse_mode: nil)
+    def send_message(id, text, reply: nil, parse_mode: nil, disable_preview: nil, reply_markup: nil)
       options = {
         :chat_id => id,
         :text => text
       }
 
-      if !reply.nil?
-        options.merge!(:reply_to_message_id => reply)
-      end
-
       if !parse_mode.nil?
         options.merge!(:parse_mode => parse_mode)
       end
-      
+      if !disable_preview.nil?
+        options.merge!(:disable_preview => disable_preview)
+      end
+      if !reply.nil?
+        options.merge!(:reply_to_message_id => reply)
+      end
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       self.get_request("sendMessage", options)
     end
 
@@ -63,7 +71,7 @@ module Telegruby
     end
    
     # Sends a photo message to a chat id
-    def send_photo(id, filename: nil, file_id: nil, reply: nil)
+    def send_photo(id, filename: nil, file_id: nil, reply: nil, caption: nil, reply_markup: nil)
       options = {
         :chat_id => id,
       }
@@ -77,6 +85,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !caption.nil?
+        options.merge!(:caption => caption)
+      end
+
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+      
       self.post_request("sendPhoto", options)
     end
 
@@ -90,7 +106,7 @@ module Telegruby
       }
     end
 
-    def send_voice(id, filename: nil, file_id: nil, reply: nil)
+    def send_voice(id, filename: nil, file_id: nil, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id,
       }
@@ -104,10 +120,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       self.post_request("sendVoice", options)
     end
 
-    def send_sticker(id, file_id: nil, filename: nil, reply: nil)
+    def send_sticker(id, file_id: nil, filename: nil, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id,
       }
@@ -121,10 +141,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       self.post_request("sendSticker", options)
     end
 
-    def send_audio(id, filename: nil, file_id: nil, reply: nil)
+    def send_audio(id, filename: nil, file_id: nil, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id,
       } 
@@ -138,10 +162,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       self.post_request("sendAudio", options)
     end
 
-    def send_video(id, filename: nil, file_id: nil, reply: nil)
+    def send_video(id, filename: nil, file_id: nil, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id,
       }
@@ -155,10 +183,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       self.post_request("sendVideo", options)
     end
 
-    def send_location(id, lat, long, reply: nil)
+    def send_location(id, lat, long, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id,
         :latitude => lat,
@@ -167,6 +199,10 @@ module Telegruby
       
       if !reply.nil?
         options.merge!(:reply_to_message_id => reply)
+      end
+
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
       end
 
       self.post_request("sendLocation", options)
@@ -182,7 +218,7 @@ module Telegruby
     end
 
     # Sends a document by filename or file ID
-    def send_document(id, filename: nil, file_id: nil, reply: nil)
+    def send_document(id, filename: nil, file_id: nil, reply: nil, reply_markup: nil)
       options = {
         :chat_id => id
       }
@@ -197,10 +233,14 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
 
+      if !reply_markup.nil?
+        options.merge!(:reply_markup => reply_markup)
+      end
+
       return self.post_request("sendDocument", options)
     end
     
-    def get_userphoto(id, offset: nil, limit: nil)
+    def get_userphotos(id, offset: nil, limit: nil)
       options = {
         :user_id => id,
         :offset => offset,
@@ -221,6 +261,26 @@ module Telegruby
       return self.get_request("setWebhook", options)
     end
 
+    def get_file(file_id)
+      options = {
+        :file_id => file_id
+      }
+      return self.get_request("getFile", options)
+    end
+
+    def answer_inline_query(id, results, cache_time: 300, is_personal: false, next_offset: nil)
+      options = {
+        :inline_query_id => id,
+        :results => results,
+        :cache_time => cache_time,
+        :is_personal => is_personal,
+      }
+      if !next_offset.nil?
+        options.merge!(:next_offset => next_offset)
+      end
+      return self.get_request("answerInlineQuery", options)
+    end
+
     protected
 
     # Provides a generic method for GET requests.
@@ -232,6 +292,7 @@ module Telegruby
     def post_request(name, options = {})
       HTTMultiParty::post(@endpoint + name, query: options).body
     end
+
   end
 
   module_function
@@ -252,7 +313,7 @@ module Telegruby
       return false
     end
   end
-
+  
   # Given an Update object, gets messages as structs.
   def collect_msgs(update)
     update.result.map { |msg|
@@ -288,6 +349,22 @@ module Telegruby
       self.message.chat.id
     end
 
+    def added?(username)
+      if self.message.new_chat_participant.nil?
+        false
+      else
+        self.message.new_chat_participant.username == username
+      end
+    end
+
+    def left?(username)
+      if self.message.left_chat_participant.nil?
+        false
+      else
+        self.message.left_chat_participant.username == username
+      end
+    end
+    
     def body
       self.message.text
     end
