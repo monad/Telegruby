@@ -54,7 +54,7 @@ module Telegruby
         options.merge!(:reply_to_message_id => reply)
       end
       if !reply_markup.nil?
-        options.merge!(:reply_markup => reply_markup)
+        options.merge!(:reply_markup => reply_markup.to_json)
       end
 
       self.get_request("sendMessage", options)

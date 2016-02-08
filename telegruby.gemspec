@@ -1,6 +1,6 @@
 Gem::Specification.new { |spec|
   spec.name         = "telegruby"
-  spec.version      = "1.1.3"
+  spec.version      = "1.2"
   spec.date         = "2016-02-07"
   spec.summary      = "Telegram Bot API library."
   spec.description  = "Telegram Bot API library, https://core.telegram.org/bots/api."
