@@ -4,7 +4,7 @@ require 'telegruby'
 
 # Please see https://github.com/webgiorno/lainbot for a full bot example.
 
-token = "TOKEN"
+token = ENV["TELEGRAM_TOKEN"]
 botname = "BOTNAME"
 bot = Telegruby::Bot.new(token)
 
@@ -20,9 +20,8 @@ end
 # Listener thread
 while true
   # Collect messages from last update
-  msgs = Telegruby::collect_msgs(bot.get_updates)
   # Process each message
-  msgs.map { |msg|
+  bot.get_updates.map { |msg|
     if !msg.older_than? 120 and !msg.body.nil?
       handle bot, msg, /^\/echo\s+(.*)$/i, lambda { |b,m,p|
         bot.send_message(msg.chat_id, p.last.to_s)
